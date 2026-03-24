@@ -41,7 +41,6 @@ public class DiscordService {
                 .addField("Player", playerName, false)
                 .addField("URL", url, false)
                 .addField("Command", command, false)
-                .addField("Status", "Pending", false)
                 .setImage(url)
                 .setTimestamp(Instant.now())
                 .build();

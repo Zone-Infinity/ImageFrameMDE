@@ -31,7 +31,7 @@ public final class ImageFrameMDE extends JavaPlugin {
 
             // Moderation Manager
             ModerationManager moderationManager = new ModerationManager(this, urlRepository, requestRepository, maxPendingRequests);
-            moderationManager.loadPendingCache();
+            moderationManager.loadStartupCaches();
 
             long cutoff = System.currentTimeMillis() - Duration.ofDays(30).toMillis(); // delete pending requests 30 days old
             requestRepository.deleteOldRequests(cutoff);

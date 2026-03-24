@@ -96,6 +96,11 @@ public class CommandInterceptor implements Listener {
                 player.sendMessage(Color.RED + "This image URL has been rejected by moderators.");
             }
 
+            case PENDING -> {
+                event.setCancelled(true);
+                player.sendMessage(Color.YELLOW + "This image is already awaiting moderation. Please wait for a moderator to review it.");
+            }
+
             case UNKNOWN -> {
                 event.setCancelled(true);
 

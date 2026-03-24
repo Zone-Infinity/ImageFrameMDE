@@ -3,9 +3,7 @@ package me.isoham.imageframe.mde.storage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class RequestRepository {
 
@@ -83,26 +81,24 @@ public class RequestRepository {
         }
     }
 
-    public Map<String, Integer> loadPendingCounts() throws Exception {
-        Map<String, Integer> result = new HashMap<>();
-
+    public void loadPendingCache(Map<UUID, Integer> pendingRequests,
+                                 Set<String> pendingHashes) throws Exception {
         String sql = """
-                SELECT player_uuid, COUNT(*)
+                SELECT player_uuid, hash
                 FROM requests
                 WHERE status = 'PENDING'
-                GROUP BY player_uuid
                 """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                result.put(
-                        rs.getString(1),
-                        rs.getInt(2)
-                );
+                UUID uuid = UUID.fromString(rs.getString("player_uuid"));
+                String hash = rs.getString("hash");
+
+                pendingRequests.merge(uuid, 1, Integer::sum);
+                pendingHashes.add(hash);
             }
         }
-
-        return result;
     }
 }

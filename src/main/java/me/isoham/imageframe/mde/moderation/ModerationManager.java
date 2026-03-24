@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.awt.*;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +20,7 @@ public class ModerationManager {
     private final int maxPendingRequests;
 
     private final Map<String, UrlStatus> cache = new ConcurrentHashMap<>();
+    private final Set<String> pendingHashes = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Integer> pendingRequests = new ConcurrentHashMap<>();
 
     public ModerationManager(JavaPlugin plugin, UrlRepository urlRepository, RequestRepository requestRepository, int maxPendingRequests) {
@@ -34,6 +36,10 @@ public class ModerationManager {
             return cached;
         }
 
+        if (pendingHashes.contains(hash)) {
+            return UrlStatus.PENDING;
+        }
+
         try {
             UrlStatus status = urlRepository.getStatus(hash);
 
@@ -42,8 +48,9 @@ public class ModerationManager {
             }
 
             return status;
+
         } catch (Exception e) {
-            // TODO: Log this properly
+            // TODO: Proper logging
             e.printStackTrace();
             return UrlStatus.UNKNOWN;
         }
@@ -68,6 +75,7 @@ public class ModerationManager {
         );
 
         pendingRequests.merge(uuid, 1, Integer::sum);
+        pendingHashes.add(hash);
         try {
             requestRepository.insert(request);
         } catch (Exception e) {
@@ -107,6 +115,7 @@ public class ModerationManager {
             }
 
             pendingRequests.computeIfPresent(uuid, (k, v) -> Math.max(0, v - 1));
+            pendingHashes.remove(req.hash());
 
             return true;
         } catch (Exception e) {
@@ -141,6 +150,8 @@ public class ModerationManager {
             }
 
             pendingRequests.computeIfPresent(uuid, (k, v) -> Math.max(0, v - 1));
+            pendingHashes.remove(req.hash());
+
             return true;
         } catch (Exception e) {
             // TODO: Log this properly
@@ -149,14 +160,16 @@ public class ModerationManager {
         }
     }
 
-    public void loadPendingCache() {
+    public void loadStartupCaches() {
         try {
-            var map = requestRepository.loadPendingCounts();
-            for (var entry : map.entrySet()) {
-                UUID uuid = UUID.fromString(entry.getKey());
-                pendingRequests.put(uuid, entry.getValue());
-            }
-            plugin.getLogger().info("Pending cache loaded!");
+
+            requestRepository.loadPendingCache(pendingRequests, pendingHashes);
+
+            plugin.getLogger().info("Moderation caches loaded! Pending players: "
+                    + pendingRequests.size()
+                    + ", pending URLs: "
+                    + pendingHashes.size());
+
         } catch (Exception e) {
             // TODO: Log this properly
             e.printStackTrace();
