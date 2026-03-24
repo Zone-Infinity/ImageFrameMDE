@@ -1,0 +1,57 @@
+name: Build Snapshot
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build plugin
+        run: ./gradlew clean shadowJar
+
+      - name: Get commit message
+        id: commit
+        run: |
+          echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+
+      - name: Rename jar with build number
+        run: |
+          JAR=$(ls build/libs/*.jar | head -n 1)
+          NEW_NAME="ImageFrameMDE-1.0+build${{ github.run_number }}.jar"
+          mv "$JAR" "build/libs/$NEW_NAME"
+
+      - name: Publish Snapshot Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: snapshot
+          name: Latest Snapshot
+          prerelease: true
+          body: |
+            Build: ${{ github.run_number }}
+
+            Commit:
+            ${{ steps.commit.outputs.msg }}
+
+            Commit URL:
+            https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+          files: build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
