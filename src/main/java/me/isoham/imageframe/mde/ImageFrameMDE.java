@@ -1,0 +1,64 @@
+package me.isoham.imageframe.mde;
+
+import me.isoham.imageframe.mde.discord.DiscordService;
+import me.isoham.imageframe.mde.listeners.CommandInterceptor;
+import me.isoham.imageframe.mde.moderation.ModerationManager;
+import me.isoham.imageframe.mde.storage.DatabaseManager;
+import me.isoham.imageframe.mde.storage.RequestRepository;
+import me.isoham.imageframe.mde.storage.UrlRepository;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.time.Duration;
+
+public final class ImageFrameMDE extends JavaPlugin {
+    private DiscordService discordService;
+    private DatabaseManager databaseManager;
+
+    @Override
+    public void onEnable() {
+        saveDefaultConfig();
+
+        String token = getConfig().getString("discord.token");
+        long channelId = getConfig().getLong("discord.channel-id");
+        int maxPendingRequests = getConfig().getInt("moderation.max-pending-requests-per-player", 3);
+
+        try {
+            // Database Service
+            databaseManager = new DatabaseManager(this);
+            UrlRepository urlRepository = new UrlRepository(databaseManager.getConnection());
+            RequestRepository requestRepository = new RequestRepository(databaseManager.getConnection());
+            getLogger().info("Database initialized");
+
+            // Moderation Manager
+            ModerationManager moderationManager = new ModerationManager(this, urlRepository, requestRepository, maxPendingRequests);
+            moderationManager.loadPendingCache();
+
+            long cutoff = System.currentTimeMillis() - Duration.ofDays(30).toMillis(); // delete pending requests 30 days old
+            requestRepository.deleteOldRequests(cutoff);
+
+            // Discord Service
+            discordService = new DiscordService(token, channelId, moderationManager);
+            getLogger().info("Discord bot started.");
+
+            // Register event listeners for new/updated images
+            // getServer().getPluginManager().registerEvents(new ImageMapListener(), this);
+            getServer().getPluginManager().registerEvents(new CommandInterceptor(moderationManager, discordService), this);
+        } catch (Exception e) {
+            getLogger().severe("Failed to start Plugin: " + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if (discordService != null) {
+            discordService.shutdown();
+        }
+
+        try {
+            databaseManager.close();
+        } catch (Exception e) {
+            getLogger().severe("Error while closing database : " + e.getLocalizedMessage());
+        }
+    }
+
+}

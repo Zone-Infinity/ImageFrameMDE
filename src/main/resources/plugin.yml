@@ -1,0 +1,8 @@
+name: ImageFrameMDE
+version: '1.0'
+main: me.isoham.imageframe.mde.ImageFrameMDE
+api-version: '1.21'
+authors: [ iSoham ]
+description:
+  "ImageFrame Extension for Moderating Images on Discord (MDE: Moderating on Discord Extension)"
+depend: [ ImageFrame ]
