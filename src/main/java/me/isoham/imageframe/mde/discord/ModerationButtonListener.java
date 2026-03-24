@@ -49,7 +49,7 @@ public class ModerationButtonListener extends ListenerAdapter {
     }
 
     private void updateMessage(ButtonInteractionEvent event, String title, Color color) {
-        var embed = event.getMessage().getEmbeds().getFirst();
+        var embed = event.getMessage().getEmbeds().get(0);
         var builder = new EmbedBuilder(embed);
 
         builder.setTitle(title);
