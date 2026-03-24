@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -51,13 +52,7 @@ public class CommandInterceptor implements Listener {
             return;
         }
 
-        String sub = args[1].toLowerCase();
-
-        String url = switch (sub) {
-            case "create", "overlay", "refresh" -> args.length >= 4 ? args[3] : null;
-            default -> null;
-        };
-
+        String url = getUrl(args);
         if (url == null) {
             return;
         }
@@ -126,6 +121,37 @@ public class CommandInterceptor implements Listener {
                 player.sendMessage(Color.YELLOW + "Your image request was sent for moderation.");
             }
         }
+    }
+
+    private static @Nullable String getUrl(String[] args) {
+        String sub = args[1].toLowerCase();
+
+        String url = null;
+
+        switch (sub) {
+            case "create" -> {
+                if (args.length == 6 || args.length == 7) {
+                    url = args[3];
+                } else if (args.length == 5 && args[4].equalsIgnoreCase("selection")) {
+                    url = args[3];
+                }
+            }
+
+            case "overlay" -> {
+                if (args.length == 4) {
+                    url = args[3];
+                } else if (args.length == 5 && args[4].equalsIgnoreCase("selection")) {
+                    url = args[3];
+                }
+            }
+
+            case "refresh" -> {
+                if (args.length >= 4) {
+                    url = args[3];
+                }
+            }
+        }
+        return url;
     }
 
     private String hash(String input) {

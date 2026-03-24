@@ -156,6 +156,7 @@ public class ModerationManager {
                 UUID uuid = UUID.fromString(entry.getKey());
                 pendingRequests.put(uuid, entry.getValue());
             }
+            plugin.getLogger().info("Pending cache loaded!");
         } catch (Exception e) {
             // TODO: Log this properly
             e.printStackTrace();

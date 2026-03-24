@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
 
+// TODO: USE Kyori.Adventure!!!!!
 public class ModerationButtonListener extends ListenerAdapter {
-
     private final ModerationManager moderationManager;
 
     public ModerationButtonListener(ModerationManager moderationManager) {
@@ -37,7 +37,7 @@ public class ModerationButtonListener extends ListenerAdapter {
 
         if (componentId.startsWith("reject:")) {
             String requestId = componentId.substring(7);
-            if (!moderationManager.reject(requestId, moderator)) {
+            if (moderationManager.reject(requestId, moderator)) {
                 updateMessage(event, "❌ Rejected by " + moderator, Color.RED);
                 event.reply("Request rejected.").setEphemeral(true).queue();
             } else {
