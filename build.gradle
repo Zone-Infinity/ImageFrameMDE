@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = 'me.isoham.imageframe.mde'
@@ -13,7 +13,6 @@ repositories {
         name = "spigotmc-repo"
         url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
     }
-
     maven { url = 'https://repo.loohpjames.com/repository' }
 }
 
@@ -26,13 +25,14 @@ dependencies {
         exclude module: "tink"
     }
 
-    implementation("org.xerial:sqlite-jdbc:3.45.1.0")
+    implementation("org.xerial:sqlite-jdbc:3.46.0.0")
 }
 
 tasks {
 
     shadowJar {
         archiveClassifier.set("")
+
         relocate "net.dv8tion.jda", "me.isoham.imageframe.mde.libs.jda"
         relocate "okhttp3", "me.isoham.imageframe.mde.libs.okhttp"
         relocate "okio", "me.isoham.imageframe.mde.libs.okio"
@@ -55,11 +55,10 @@ tasks {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
 }
 
 tasks.withType(JavaCompile).configureEach {
