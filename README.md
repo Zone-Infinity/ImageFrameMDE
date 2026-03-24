@@ -9,9 +9,6 @@ before allowing the image to load in-game.
 
 Supports **Minecraft 1.21.11**.
 
-
----
-
 ## Features
 
 - Intercepts ImageFrame commands that include image URLs
@@ -22,8 +19,6 @@ Supports **Minecraft 1.21.11**.
 - Configurable rate limit for pending requests
 - SQLite database for moderation decisions
 
----
-
 ## Requirements
 
 - Minecraft server **1.21.11**
@@ -32,8 +27,6 @@ Supports **Minecraft 1.21.11**.
 - ImageFrame plugin
 - Discord bot token
 
----
-
 ## Installation
 
 1. Download the plugin `.jar`
@@ -41,8 +34,6 @@ Supports **Minecraft 1.21.11**.
 3. Start the server once to generate the config
 4. Configure the Discord bot token and moderation channel
 5. Restart the server
-
----
 
 ## Configuration Example
 
@@ -55,9 +46,6 @@ discord:
 token: "YOUR_BOT_TOKEN"
 moderation-channel-id: 123456789012345678
 
-
----
-
 ## Moderation Flow
 
 1. Player runs an ImageFrame command containing an image URL
@@ -67,8 +55,6 @@ moderation-channel-id: 123456789012345678
     - The command is blocked
 4. A moderator approves or rejects the request
 5. Approved images can then be used normally
-
----
 
 ## Database
 
@@ -80,16 +66,11 @@ Stores the final moderation decision for an image.
 requests
 Stores moderation request history.
 
-
----
-
 ## Dependencies
 
 - [ImageFrame](https://github.com/LOOHP/ImageFrame)
 
 - [JDA (Java Discord API)](https://github.com/discord-jda/JDA)
-
----
 
 ## License
 

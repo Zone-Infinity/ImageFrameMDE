@@ -31,6 +31,11 @@ dependencies {
 tasks {
     shadowJar {
         archiveClassifier.set('')
+        minimize()
+
+        relocate 'net.dv8tion.jda', 'me.isoham.mde.libs.jda'
+        relocate 'okhttp3', 'me.isoham.mde.libs.okhttp'
+        relocate 'com.fasterxml.jackson', 'me.isoham.mde.libs.jackson'
     }
 
     build {
