@@ -2,9 +2,8 @@ name: Build Plugin
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -14,20 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
           cache: gradle
 
-      - name: Grant execute permission for Gradle
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Build with Gradle
-        run: ./gradlew build
+      - name: Build plugin
+        run: ./gradlew clean shadowJar
 
-      - name: Upload plugin jar
+      - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
           name: ImageFrameMDE
