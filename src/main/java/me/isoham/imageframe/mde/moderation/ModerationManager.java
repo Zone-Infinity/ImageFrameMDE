@@ -107,6 +107,7 @@ public class ModerationManager {
             UUID uuid = UUID.fromString(req.playerUUID());
             Player player = Bukkit.getPlayer(uuid);
 
+            // TODO: Store this and send it to player when they join!
             if (player != null) {
                 player.sendMessage(Color.GREEN + "Your image request has been approved by a moderator.");
                 Bukkit.getScheduler().runTask(plugin, () ->
