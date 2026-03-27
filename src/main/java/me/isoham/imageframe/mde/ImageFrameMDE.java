@@ -1,7 +1,9 @@
 package me.isoham.imageframe.mde;
 
+import me.isoham.imageframe.mde.config.Config;
 import me.isoham.imageframe.mde.discord.DiscordService;
 import me.isoham.imageframe.mde.listeners.CommandInterceptor;
+import me.isoham.imageframe.mde.listeners.ReloadCommand;
 import me.isoham.imageframe.mde.moderation.ModerationManager;
 import me.isoham.imageframe.mde.storage.DatabaseManager;
 import me.isoham.imageframe.mde.storage.RequestRepository;
@@ -20,7 +22,8 @@ public final class ImageFrameMDE extends JavaPlugin {
 
         String token = getConfig().getString("discord.token");
         long channelId = getConfig().getLong("discord.channel-id");
-        int maxPendingRequests = getConfig().getInt("moderation.max-pending-requests-per-player", 3);
+
+        Config config = new Config(this);
 
         try {
             // Database Service
@@ -30,7 +33,7 @@ public final class ImageFrameMDE extends JavaPlugin {
             getLogger().info("Database initialized");
 
             // Moderation Manager
-            ModerationManager moderationManager = new ModerationManager(this, urlRepository, requestRepository, maxPendingRequests);
+            ModerationManager moderationManager = new ModerationManager(this, urlRepository, requestRepository, config);
             moderationManager.loadStartupCaches();
 
             long cutoff = System.currentTimeMillis() - Duration.ofDays(30).toMillis(); // delete pending requests 30 days old
@@ -42,7 +45,9 @@ public final class ImageFrameMDE extends JavaPlugin {
 
             // Register event listeners for new/updated images
             // getServer().getPluginManager().registerEvents(new ImageMapListener(), this);
-            getServer().getPluginManager().registerEvents(new CommandInterceptor(moderationManager, discordService), this);
+            getServer().getPluginManager().registerEvents(new CommandInterceptor(moderationManager, discordService, config), this);
+
+            getCommand("mdereload").setExecutor(new ReloadCommand(config));
         } catch (Exception e) {
             getLogger().severe("Failed to start Plugin: " + e.getLocalizedMessage());
         }

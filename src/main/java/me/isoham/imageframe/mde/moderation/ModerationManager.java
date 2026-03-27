@@ -1,5 +1,7 @@
 package me.isoham.imageframe.mde.moderation;
 
+import me.isoham.imageframe.mde.config.Config;
+import me.isoham.imageframe.mde.config.MessageConfig;
 import me.isoham.imageframe.mde.storage.*;
 
 import org.bukkit.Bukkit;
@@ -17,17 +19,17 @@ public class ModerationManager {
     private final JavaPlugin plugin;
     private final URLRepository urlRepository;
     private final RequestRepository requestRepository;
-    private final int maxPendingRequests;
+    private final Config config;
 
     private final Map<String, URLStatus> cache = new ConcurrentHashMap<>();
     private final Set<String> pendingHashes = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Integer> pendingRequests = new ConcurrentHashMap<>();
 
-    public ModerationManager(JavaPlugin plugin, URLRepository urlRepository, RequestRepository requestRepository, int maxPendingRequests) {
+    public ModerationManager(JavaPlugin plugin, URLRepository urlRepository, RequestRepository requestRepository, Config config) {
         this.plugin = plugin;
         this.urlRepository = urlRepository;
         this.requestRepository = requestRepository;
-        this.maxPendingRequests = maxPendingRequests;
+        this.config = config;
     }
 
     public URLStatus check(String hash) {
@@ -109,7 +111,7 @@ public class ModerationManager {
 
             // TODO: Store this and send it to player when they join!
             if (player != null) {
-                player.sendMessage(Color.GREEN + "Your image request has been approved by a moderator.");
+                player.sendMessage(config.getMessages().get(MessageConfig.Message.MODERATION_APPROVED));
                 Bukkit.getScheduler().runTask(plugin, () ->
                         Bukkit.dispatchCommand(player, req.command().substring(1))
                 );
@@ -147,7 +149,7 @@ public class ModerationManager {
 
             Player player = Bukkit.getPlayer(uuid);
             if (player != null) {
-                player.sendMessage(Color.RED + "Your image request was rejected by a moderator.");
+                player.sendMessage(config.getMessages().get(MessageConfig.Message.MODERATION_REJECTED));
             }
 
             pendingRequests.computeIfPresent(uuid, (k, v) -> Math.max(0, v - 1));
@@ -179,6 +181,6 @@ public class ModerationManager {
     public boolean isRateLimited(Player player) {
         UUID uuid = player.getUniqueId();
         int pending = pendingRequests.getOrDefault(uuid, 0);
-        return pending >= maxPendingRequests;
+        return pending >= config.getMaxPendingRequestsPerPlayer();
     }
 }

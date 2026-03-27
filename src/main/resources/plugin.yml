@@ -6,3 +6,11 @@ authors: [ iSoham ]
 description:
   "ImageFrame Extension for Moderating Images on Discord (MDE: Moderating on Discord Extension)"
 depend: [ ImageFrame ]
+commands:
+  mdereload:
+    description: Reload ImageFrameMDE configuration
+    permission: imageframemde.reload
+
+permissions:
+  imageframemde.reload:
+    default: op

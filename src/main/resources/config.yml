@@ -6,4 +6,14 @@ moderation:
   max-pending-requests-per-player: 3
 
 messages:
+  request:
+    submitted: "&eYour image request was sent for moderation."
+    already_pending: "&6This image is already awaiting moderation. Please wait."
+    limit_reached: "&cYou have too many pending moderation requests."
 
+  url:
+    rejected: "&cThis image URL has been rejected by moderators."
+
+  moderation:
+    approved: "&aYour image request has been approved by a moderator."
+    rejected: "&cYour image request was rejected by a moderator."

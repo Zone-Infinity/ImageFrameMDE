@@ -1,10 +1,11 @@
 package me.isoham.imageframe.mde.listeners;
 
+import me.isoham.imageframe.mde.config.Config;
+import me.isoham.imageframe.mde.config.MessageConfig;
 import me.isoham.imageframe.mde.discord.DiscordService;
 import me.isoham.imageframe.mde.moderation.ModerationManager;
 import me.isoham.imageframe.mde.storage.URLStatus;
 
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,10 +32,12 @@ import java.util.HexFormat;
 public class CommandInterceptor implements Listener {
     private final ModerationManager moderationManager;
     private final DiscordService discordService;
+    private final Config config;
 
-    public CommandInterceptor(ModerationManager moderationManager, DiscordService discordService) {
+    public CommandInterceptor(ModerationManager moderationManager, DiscordService discordService, Config config) {
         this.moderationManager = moderationManager;
         this.discordService = discordService;
+        this.config = config;
     }
 
     @EventHandler
@@ -93,12 +96,12 @@ public class CommandInterceptor implements Listener {
 
             case REJECTED -> {
                 event.setCancelled(true);
-                player.sendMessage(Color.RED + "This image URL has been rejected by moderators.");
+                player.sendMessage(config.getMessages().get(MessageConfig.Message.URL_REJECTED));
             }
 
             case PENDING -> {
                 event.setCancelled(true);
-                player.sendMessage(Color.YELLOW + "This image is already awaiting moderation. Please wait for a moderator to review it.");
+                player.sendMessage(config.getMessages().get(MessageConfig.Message.REQUEST_ALREADY_PENDING));
             }
 
             case UNKNOWN -> {
@@ -112,7 +115,7 @@ public class CommandInterceptor implements Listener {
                 );
 
                 if (requestId == null) {
-                    player.sendMessage(Color.RED + "You have too many pending moderation requests.");
+                    player.sendMessage(config.getMessages().get(MessageConfig.Message.REQUEST_LIMIT_REACHED));
                     return;
                 }
 
@@ -123,7 +126,7 @@ public class CommandInterceptor implements Listener {
                         url
                 );
 
-                player.sendMessage(Color.YELLOW + "Your image request was sent for moderation.");
+                player.sendMessage(config.getMessages().get(MessageConfig.Message.REQUEST_SUBMITTED));
             }
         }
     }
