@@ -2,7 +2,7 @@ package me.isoham.imageframe.mde.listeners;
 
 import me.isoham.imageframe.mde.discord.DiscordService;
 import me.isoham.imageframe.mde.moderation.ModerationManager;
-import me.isoham.imageframe.mde.storage.UrlStatus;
+import me.isoham.imageframe.mde.storage.URLStatus;
 
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -85,7 +85,7 @@ public class CommandInterceptor implements Listener {
         //
         String hash = hash(url);
 
-        UrlStatus status = moderationManager.check(hash);
+        URLStatus status = moderationManager.check(hash);
 
         switch (status) {
             case APPROVED -> {

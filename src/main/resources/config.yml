@@ -5,4 +5,5 @@ discord:
 moderation:
   max-pending-requests-per-player: 3
 
+messages:
 

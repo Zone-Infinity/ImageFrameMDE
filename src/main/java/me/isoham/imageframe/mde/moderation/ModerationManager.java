@@ -15,35 +15,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ModerationManager {
     private final JavaPlugin plugin;
-    private final UrlRepository urlRepository;
+    private final URLRepository urlRepository;
     private final RequestRepository requestRepository;
     private final int maxPendingRequests;
 
-    private final Map<String, UrlStatus> cache = new ConcurrentHashMap<>();
+    private final Map<String, URLStatus> cache = new ConcurrentHashMap<>();
     private final Set<String> pendingHashes = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Integer> pendingRequests = new ConcurrentHashMap<>();
 
-    public ModerationManager(JavaPlugin plugin, UrlRepository urlRepository, RequestRepository requestRepository, int maxPendingRequests) {
+    public ModerationManager(JavaPlugin plugin, URLRepository urlRepository, RequestRepository requestRepository, int maxPendingRequests) {
         this.plugin = plugin;
         this.urlRepository = urlRepository;
         this.requestRepository = requestRepository;
         this.maxPendingRequests = maxPendingRequests;
     }
 
-    public UrlStatus check(String hash) {
-        UrlStatus cached = cache.get(hash);
+    public URLStatus check(String hash) {
+        URLStatus cached = cache.get(hash);
         if (cached != null) {
             return cached;
         }
 
         if (pendingHashes.contains(hash)) {
-            return UrlStatus.PENDING;
+            return URLStatus.PENDING;
         }
 
         try {
-            UrlStatus status = urlRepository.getStatus(hash);
+            URLStatus status = urlRepository.getStatus(hash);
 
-            if (status != UrlStatus.UNKNOWN) {
+            if (status != URLStatus.UNKNOWN) {
                 cache.put(hash, status);
             }
 
@@ -52,7 +52,7 @@ public class ModerationManager {
         } catch (Exception e) {
             // TODO: Proper logging
             e.printStackTrace();
-            return UrlStatus.UNKNOWN;
+            return URLStatus.UNKNOWN;
         }
     }
 
@@ -97,11 +97,11 @@ public class ModerationManager {
             urlRepository.insertOrUpdate(
                     req.hash(),
                     req.url(),
-                    UrlStatus.APPROVED,
+                    URLStatus.APPROVED,
                     moderator
             );
 
-            cache.put(req.hash(), UrlStatus.APPROVED);
+            cache.put(req.hash(), URLStatus.APPROVED);
             requestRepository.updateStatus(requestId, RequestStatus.APPROVED);
 
             UUID uuid = UUID.fromString(req.playerUUID());
@@ -137,11 +137,11 @@ public class ModerationManager {
             urlRepository.insertOrUpdate(
                     req.hash(),
                     req.url(),
-                    UrlStatus.REJECTED,
+                    URLStatus.REJECTED,
                     moderator
             );
 
-            cache.put(req.hash(), UrlStatus.REJECTED);
+            cache.put(req.hash(), URLStatus.REJECTED);
             requestRepository.updateStatus(requestId, RequestStatus.REJECTED);
             UUID uuid = UUID.fromString(req.playerUUID());
 
@@ -163,7 +163,6 @@ public class ModerationManager {
 
     public void loadStartupCaches() {
         try {
-
             requestRepository.loadPendingCache(pendingRequests, pendingHashes);
 
             plugin.getLogger().info("Moderation caches loaded! Pending players: "

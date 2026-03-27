@@ -1,6 +1,6 @@
 package me.isoham.imageframe.mde.storage;
 
-public enum UrlStatus {
+public enum URLStatus {
     APPROVED,
     REJECTED,
     PENDING,

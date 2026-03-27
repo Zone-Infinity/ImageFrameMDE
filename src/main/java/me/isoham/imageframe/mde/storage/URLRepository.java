@@ -4,14 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class UrlRepository {
+public class URLRepository {
     private final Connection connection;
 
-    public UrlRepository(Connection connection) {
+    public URLRepository(Connection connection) {
         this.connection = connection;
     }
 
-    public UrlStatus getStatus(String hash) throws Exception {
+    public URLStatus getStatus(String hash) throws Exception {
         String sql = "SELECT status FROM urls WHERE hash=?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -19,15 +19,15 @@ public class UrlRepository {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) {
-                    return UrlStatus.UNKNOWN;
+                    return URLStatus.UNKNOWN;
                 }
 
-                return UrlStatus.valueOf(rs.getString("status"));
+                return URLStatus.valueOf(rs.getString("status"));
             }
         }
     }
 
-    public void insertOrUpdate(String hash, String url, UrlStatus status, String moderator) throws Exception {
+    public void insertOrUpdate(String hash, String url, URLStatus status, String moderator) throws Exception {
         String sql = """
                 INSERT INTO urls(hash, url, status, moderated_by, created_at)
                 VALUES(?,?,?,?,?)

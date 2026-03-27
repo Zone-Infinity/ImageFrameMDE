@@ -5,7 +5,7 @@ import me.isoham.imageframe.mde.listeners.CommandInterceptor;
 import me.isoham.imageframe.mde.moderation.ModerationManager;
 import me.isoham.imageframe.mde.storage.DatabaseManager;
 import me.isoham.imageframe.mde.storage.RequestRepository;
-import me.isoham.imageframe.mde.storage.UrlRepository;
+import me.isoham.imageframe.mde.storage.URLRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
@@ -25,7 +25,7 @@ public final class ImageFrameMDE extends JavaPlugin {
         try {
             // Database Service
             databaseManager = new DatabaseManager(this);
-            UrlRepository urlRepository = new UrlRepository(databaseManager.getConnection());
+            URLRepository urlRepository = new URLRepository(databaseManager.getConnection());
             RequestRepository requestRepository = new RequestRepository(databaseManager.getConnection());
             getLogger().info("Database initialized");
 
@@ -46,6 +46,11 @@ public final class ImageFrameMDE extends JavaPlugin {
         } catch (Exception e) {
             getLogger().severe("Failed to start Plugin: " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public void reloadConfig() {
+        super.reloadConfig();
     }
 
     @Override
