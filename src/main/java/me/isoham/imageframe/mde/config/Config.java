@@ -30,6 +30,6 @@ public class Config {
     }
 
     public int getMaxPendingRequestsPerPlayer() {
-        return plugin.getConfig().getInt("moderation.max-pending-requests-per-player");
+        return plugin.getConfig().getInt("moderation.max-pending-requests-per-player", 3);
     }
 }

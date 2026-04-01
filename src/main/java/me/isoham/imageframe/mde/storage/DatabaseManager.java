@@ -55,7 +55,8 @@ public class DatabaseManager {
                         url TEXT NOT NULL,
                         hash TEXT NOT NULL,
                         status TEXT NOT NULL,
-                        created_at INTEGER NOT NULL
+                        created_at INTEGER NOT NULL,
+                        delivered BOOLEAN NOT NULL DEFAULT FALSE
                     )
                     """);
 

@@ -15,6 +15,31 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * TODO: Moderation consistency issue
+ *
+ * Currently, when a moderator approves a request, the image command is executed
+ * immediately and the image becomes available to the player.
+ *
+ * If a moderator later clicks "reject" on the same request (for example by mistake
+ * or due to multiple moderators acting at the same time), the image may already
+ * have been created and given to the player. In that case, rejecting the request
+ * does not fully revert the action because the image has already been saved or
+ * distributed.
+ *
+ * This creates a moderation inconsistency where a rejected request may still
+ * result in the image existing in-game.
+ *
+ * Possible solutions:
+ * - Prevent double moderation by disabling the buttons once a decision is made
+ * - Ensure requests can only transition from PENDING -> APPROVED or PENDING -> REJECTED
+ * - Add a verification step before executing the command
+ * - Track created images and remove them if a request is later rejected
+ *
+ * Needs investigation and a proper fix to guarantee moderation decisions are final
+ * and cannot result in inconsistent state.
+ */
+
 public class ModerationManager {
     private final JavaPlugin plugin;
     private final URLRepository urlRepository;
