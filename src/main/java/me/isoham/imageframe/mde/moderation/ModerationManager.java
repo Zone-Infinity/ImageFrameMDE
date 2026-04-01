@@ -1,5 +1,7 @@
 package me.isoham.imageframe.mde.moderation;
 
+import com.loohp.imageframe.ImageFrame;
+import com.loohp.imageframe.objectholders.ImageMap;
 import me.isoham.imageframe.mde.config.Config;
 import me.isoham.imageframe.mde.config.MessageConfig;
 import me.isoham.imageframe.mde.storage.*;
@@ -8,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.awt.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,28 +17,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * TODO: Moderation consistency issue
- *
- * Currently, when a moderator approves a request, the image command is executed
- * immediately and the image becomes available to the player.
- *
- * If a moderator later clicks "reject" on the same request (for example by mistake
- * or due to multiple moderators acting at the same time), the image may already
- * have been created and given to the player. In that case, rejecting the request
- * does not fully revert the action because the image has already been saved or
- * distributed.
- *
- * This creates a moderation inconsistency where a rejected request may still
- * result in the image existing in-game.
- *
- * Possible solutions:
- * - Prevent double moderation by disabling the buttons once a decision is made
- * - Ensure requests can only transition from PENDING -> APPROVED or PENDING -> REJECTED
- * - Add a verification step before executing the command
- * - Track created images and remove them if a request is later rejected
- *
- * Needs investigation and a proper fix to guarantee moderation decisions are final
- * and cannot result in inconsistent state.
+ * Moderation decisions are reversible.
+ * <p>
+ * If a request is rejected after being approved,
+ * the created ImageFrame map will be deleted to
+ * ensure rejected images do not remain in-game.
  */
 
 public class ModerationManager {
@@ -75,7 +59,6 @@ public class ModerationManager {
             }
 
             return status;
-
         } catch (Exception e) {
             // TODO: Proper logging
             e.printStackTrace();
@@ -121,6 +104,11 @@ public class ModerationManager {
             }
 
             ModerationRequest req = optional.get();
+            if (req.status() == RequestStatus.APPROVED) {
+                plugin.getLogger().warning("Request " + requestId + " already approved: " + req.url());
+                return false;
+            }
+
             urlRepository.insertOrUpdate(
                     req.hash(),
                     req.url(),
@@ -161,6 +149,34 @@ public class ModerationManager {
             }
 
             ModerationRequest req = optional.get();
+            if (req.status() == RequestStatus.REJECTED) {
+                plugin.getLogger().warning("Request " + requestId + " already rejected: " + req.url());
+                return false;
+            }
+
+            // If request was previously accepted, delete the image
+            if (req.status() == RequestStatus.APPROVED) {
+                String[] args = req.command().split("\\s+");
+                if (args.length >= 3) {
+                    String sub = args[1];
+                    if (sub.equalsIgnoreCase("create") || sub.equalsIgnoreCase("overlay")) {
+                        String name = args[2];
+                        UUID creator = UUID.fromString(req.playerUUID());
+
+                        try {
+                            ImageMap map = ImageFrame.imageMapManager.getFromCreator(creator, name);
+                            if (map != null) {
+                                Bukkit.getScheduler().runTask(plugin, () ->
+                                        ImageFrame.imageMapManager.deleteMap(map.getImageIndex())
+                                );
+                            }
+                        } catch (Exception ignored) {
+                            // map might not exist yet or was already deleted
+                        }
+                    }
+                }
+            }
+
             urlRepository.insertOrUpdate(
                     req.hash(),
                     req.url(),
