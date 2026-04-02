@@ -2,6 +2,8 @@ package me.isoham.imageframe.mde.config;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+
 public class Config {
 
     private final JavaPlugin plugin;
@@ -27,6 +29,10 @@ public class Config {
 
     public MessageConfig getMessages() {
         return messages;
+    }
+
+    public List<String> getImageURLWhitelist() {
+        return plugin.getConfig().getStringList("moderation.image-url-whitelist");
     }
 
     public int getMaxPendingRequestsPerPlayer() {

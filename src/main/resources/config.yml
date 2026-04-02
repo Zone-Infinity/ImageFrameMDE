@@ -5,6 +5,14 @@ discord:
 moderation:
   max-pending-requests-per-player: 3
 
+  image-url-whitelist:
+    - "https://cdn.discordapp.com"
+    - "http://cdn.discordapp.com"
+    - "https://media.discordapp.net"
+    - "http://media.discordapp.net"
+    - "https://textures.minecraft.net"
+    - "http://textures.minecraft.net"
+
 messages:
   request:
     submitted: "&eYour image request was sent for moderation."

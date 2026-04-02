@@ -46,6 +46,11 @@ public class MessageConfig {
         MODERATION_REJECTED(
                 "messages.moderation.rejected",
                 "&cYour image request was rejected by a moderator."
+        ),
+
+        URL_NOT_WHITELISTED(
+                "messages.moderation.not_whitelisted",
+                "&cYour url type isn't whitelisted. Use a discord url."
         );
 
         public final String path;

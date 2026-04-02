@@ -88,6 +88,12 @@ public class CommandInterceptor implements Listener {
         //
         String hash = hash(url);
 
+        if (!isWhitelisted(url)) {
+            event.setCancelled(true);
+            player.sendMessage(config.getMessages().get(MessageConfig.Message.URL_NOT_WHITELISTED));
+            return;
+        }
+
         URLStatus status = moderationManager.check(hash);
 
         switch (status) {
@@ -170,5 +176,14 @@ public class CommandInterceptor implements Listener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isWhitelisted(String url) {
+        for (String prefix : config.getImageURLWhitelist()) {
+            if (url.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
