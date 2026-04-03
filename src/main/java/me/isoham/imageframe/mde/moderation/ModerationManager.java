@@ -7,6 +7,7 @@ import me.isoham.imageframe.mde.config.MessageConfig;
 import me.isoham.imageframe.mde.storage.*;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -126,7 +127,16 @@ public class ModerationManager {
             if (player != null) {
                 player.sendMessage(config.getMessages().get(MessageConfig.Message.MODERATION_APPROVED));
                 Bukkit.getScheduler().runTask(plugin, () ->
-                        Bukkit.dispatchCommand(player, req.command().substring(1))
+                        {
+                            try {
+                                if(!Bukkit.dispatchCommand(player, req.command().substring(1))) {
+                                    plugin.getLogger().warning("No target found while dispatching command: " + player.getName());
+                                }
+                            } catch (CommandException e) {
+                                plugin.getLogger().warning("Exception while dispatching command, Report!");
+                                e.printStackTrace();
+                            }
+                        }
                 );
             }
 
