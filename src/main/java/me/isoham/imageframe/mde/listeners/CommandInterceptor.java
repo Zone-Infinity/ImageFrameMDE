@@ -55,8 +55,10 @@ public class CommandInterceptor implements Listener {
             return;
         }
 
-        String url = getUrl(args);
+        String url = getURL(args);
         if (url == null) {
+            event.setCancelled(true);
+            player.sendMessage(config.getMessages().get(MessageConfig.Message.INVALID_USAGE));
             return;
         }
 
@@ -137,35 +139,32 @@ public class CommandInterceptor implements Listener {
         }
     }
 
-    private static @Nullable String getUrl(String[] args) {
+    // Gets the url and also validates command partially
+    private static @Nullable String getURL(String[] args) {
+        if (args.length < 4) {
+            return null;
+        }
+
         String sub = args[1].toLowerCase();
 
-        String url = null;
-
-        switch (sub) {
+        return switch (sub) {
             case "create" -> {
-                if (args.length == 6 || args.length == 7) {
-                    url = args[3];
-                } else if (args.length == 5 && args[4].equalsIgnoreCase("selection")) {
-                    url = args[3];
+                // /imageframe create <name> <url> selection
+                if (args.length == 5 && args[4].equalsIgnoreCase("selection")) {
+                    yield args[3];
                 }
+
+                // /imageframe create <name> <url> <width> <height> [options]
+                if (args.length >= 6) {
+                    yield args[3];
+                }
+
+                yield null;
             }
 
-            case "overlay" -> {
-                if (args.length == 4) {
-                    url = args[3];
-                } else if (args.length == 5 && args[4].equalsIgnoreCase("selection")) {
-                    url = args[3];
-                }
-            }
-
-            case "refresh" -> {
-                if (args.length >= 4) {
-                    url = args[3];
-                }
-            }
-        }
-        return url;
+            case "overlay", "refresh" -> args[3];
+            default -> null;
+        };
     }
 
     private String hash(String input) {

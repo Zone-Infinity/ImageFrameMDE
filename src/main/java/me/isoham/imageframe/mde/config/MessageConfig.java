@@ -51,6 +51,11 @@ public class MessageConfig {
         URL_NOT_WHITELISTED(
                 "messages.moderation.not_whitelisted",
                 "&cYour url type isn't whitelisted. Use a discord url."
+        ),
+
+        INVALID_USAGE(
+                "messages.request.invalid_usage",
+                "&cInvalid Usage"
         );
 
         public final String path;
