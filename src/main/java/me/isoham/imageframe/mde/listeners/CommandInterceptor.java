@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.List;
 
 
 /**
@@ -52,6 +53,10 @@ public class CommandInterceptor implements Listener {
         String[] args = message.split("\\s+");
 
         if (args.length < 2) {
+            return;
+        }
+
+        if(!List.of("create","overlay", "refresh").contains(args[1].toLowerCase())) {
             return;
         }
 
